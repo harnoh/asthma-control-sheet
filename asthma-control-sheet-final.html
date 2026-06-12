@@ -176,7 +176,7 @@
   // データモデルを JSON で保存。スキーマ変更時は SEED_VERSION を上げると
   // 旧バージョンの保存値は破棄され seed / 焼き込み構成にフォールバックする。
   const KEY = 'asthmaSheet_v2';
-  const SEED_VERSION = 2;
+  const SEED_VERSION = 3;
 
   const board = document.getElementById('board');
   const counter = document.getElementById('counter');
@@ -188,7 +188,7 @@
   // ===== 初期データ（seed） =====
   // sev: 各選択肢の重症度（0=中立, 1=良好 … 4=不良）。is-selected 時に色付け（§12）。
   const seed = [
-    { title:'重症度・コントロールと通院・くらしの負担', accent:false, qs:[
+    { title:'現在のご状況', accent:false, qs:[
       { label:'年齢', options:['69歳以下','70歳以上'], sev:[0,0] },
       { label:'性別', options:['男性','女性'], sev:[0,0] },
       { label:'過去1年の増悪回数', options:['0回','1回','2回','3回以上'], sev:[1,2,3,4] },
