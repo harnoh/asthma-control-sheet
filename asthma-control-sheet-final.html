@@ -57,18 +57,6 @@
   .edit.is-on{background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:var(--shadow-pop);}
   .edit.is-on:hover{background:var(--primary-press);}
 
-  /* ===== Severity legend (normal mode) ===== */
-  .legend{
-    flex:0 0 auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-    padding:9px 20px; background:rgba(255,255,255,.55); border-bottom:1px solid var(--line);
-    font-size:11.5px; color:var(--muted);
-  }
-  .legend .legend-label{font-weight:700; color:var(--ink-soft);}
-  .legend .sw{color:#fff; font-weight:700; border-radius:999px; padding:3px 11px; font-size:11px; box-shadow:var(--shadow-sm);}
-  .legend .s1{background:var(--sev1);} .legend .s2{background:var(--sev2);}
-  .legend .s3{background:var(--sev3);} .legend .s4{background:var(--sev4);}
-  .legend .note{color:var(--muted);}
-
   /* ===== Edit hint ===== */
   .edit-hint{
     flex:0 0 auto; background:var(--primary-soft); color:#3730A3;
@@ -161,7 +149,6 @@
   <header class="topbar">
     <div class="brand">
       <span class="title">重症喘息 コントロール整理シート</span>
-      <span class="sub">面談用・タップで選択</span>
     </div>
     <div class="controls">
       <span class="counter normal-only" id="counter">記入 0 / 0</span>
@@ -171,12 +158,6 @@
       <button class="tbtn edit" id="editToggle" type="button">編集</button>
     </div>
   </header>
-
-  <div class="legend normal-only" aria-hidden="true">
-    <span class="legend-label">重症度の目安</span>
-    <span class="sw s1">良好</span><span class="sw s2">軽度</span><span class="sw s3">中等度</span><span class="sw s4">不良</span>
-    <span class="note">色が濃い側（赤）が多いほどコントロール不良・負担大</span>
-  </div>
 
   <div class="edit-hint editor-only">
     編集モード：<b>↑↓</b> で移動・<b>✕</b> で削除・<b>文字をタップ</b>で書き換え・<b>＋</b> で追加。仕上がったら〔保存（書き出し）〕でファイルにして共有できます。
