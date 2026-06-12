@@ -70,9 +70,9 @@
   }
 
   /* ===== Board ===== */
-  .board{flex:1 1 auto; display:flex; gap:14px; padding:16px; min-height:0;}
+  .board{flex:1 1 auto; display:flex; flex-direction:column; gap:14px; padding:16px; width:100%; max-width:900px; margin:0 auto;}
   .col{
-    flex:1; min-width:0; background:var(--card);
+    flex:0 0 auto; width:100%; min-width:0; background:var(--card);
     border:1px solid var(--line); border-top:3px solid var(--navy);
     border-radius:13px; padding:14px 13px; display:flex; flex-direction:column;
     box-shadow:0 1px 2px rgba(27,42,74,.04);
@@ -142,13 +142,8 @@
 
   @media (prefers-reduced-motion: reduce){ .opt,.tbtn{transition:none;} }
 
-  /* Narrow fallback (preview pane / portrait) */
-  @media (max-width: 1000px){
-    body{height:auto; min-height:100vh;}
-    .board{flex-wrap:wrap;}
-    .col{flex:1 1 45%;}
-  }
-  @media (max-width: 560px){ .col{flex:1 1 100%;} }
+  /* 1列（縦積み）固定。狭い画面でもそのまま縦に並ぶ。 */
+  @media (max-width: 560px){ .board{padding:12px;} }
 </style>
 </head>
 <body>
