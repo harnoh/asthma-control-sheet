@@ -79,6 +79,8 @@
   .qs{flex:1 1 auto; display:flex; flex-direction:column; justify-content:flex-start; gap:18px; min-height:0;}
   .q-head{display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px;}
   .q .label{font-size:13px; font-weight:600; color:var(--muted); letter-spacing:.01em; min-width:0;}
+  .q-label-wrap{display:flex; align-items:baseline; gap:8px; min-width:0; flex:1 1 auto;}
+  .multi-hint{font-size:11px; font-weight:700; color:var(--primary); background:var(--primary-soft); padding:1px 9px; border-radius:999px; white-space:nowrap; flex:0 0 auto;}
   .opts{display:flex; gap:8px;}
   .opt{
     flex:1; min-width:0; display:flex; align-items:center; justify-content:center; text-align:center;
@@ -176,7 +178,7 @@
   // データモデルを JSON で保存。スキーマ変更時は SEED_VERSION を上げると
   // 旧バージョンの保存値は破棄され seed / 焼き込み構成にフォールバックする。
   const KEY = 'asthmaSheet_v2';
-  const SEED_VERSION = 5;
+  const SEED_VERSION = 6;
 
   const board = document.getElementById('board');
   const counter = document.getElementById('counter');
@@ -197,7 +199,7 @@
       { label:'血中好酸球数（/μL）', options:['<150','150–300','≥300','≥500'], sev:[1,2,3,4] },
       { label:'FeNO（ppb）', options:['<25','25–50','≥50'], sev:[1,2,4] },
       { label:'総IgE（IU/mL）', options:['<100','100–700','≥700'], sev:[1,2,3] },
-      { label:'現在の治療', options:['中用量ICS','高用量+LABA','多剤でも不十分','バイオ製剤中'], sev:[0,0,0,0] },
+      { label:'現在の治療', multi:true, options:['ICS/LABA','ICS/LABA/LAMA','LTRA','バイオ製剤投与中'], sev:[0,0,0,0] },
       { label:'生物学的製剤', options:['なし','ヌーカラ','ファセンラ','テゼスパイア','デュピクセント'], sev:[0,0,0,0,0] },
       { label:'好酸球性副鼻腔炎・鼻茸', options:['なし','あり'], sev:[1,3] },
       { label:'通院頻度（可能・希望）', options:['毎月可','2–3か月毎','半年毎希望','困難'], sev:[1,2,3,4] },
@@ -221,7 +223,9 @@
   function qHTML(q){
     var sev = q.sev || [];
     var opts = q.options.map(function(o,i){ return optHTML(o, sev[i] != null ? sev[i] : 0); }).join('');
-    return '<div class="q"><div class="q-head"><span class="label">'+esc(q.label)+'</span>'
+    var hint = q.multi ? '<span class="multi-hint">複数選択可</span>' : '';
+    return '<div class="q"'+(q.multi ? ' data-multi="1"' : '')+'><div class="q-head">'
+      + '<span class="q-label-wrap"><span class="label">'+esc(q.label)+'</span>'+hint+'</span>'
       + '<span class="q-tools editor-only"><button class="t-up" type="button" title="上へ">↑</button>'
       + '<button class="t-down" type="button" title="下へ">↓</button>'
       + '<button class="t-del" type="button" title="削除">✕</button></span></div>'
@@ -293,14 +297,22 @@
   function colIndex(colEl){ return idxIn(board.querySelectorAll('.col'), colEl); }
   function qIndex(colEl, qEl){ return idxIn(colEl.querySelectorAll('.q'), qEl); }
 
-  // ===== 選択トグル（単一選択・再タップ解除）=====
+  // ===== 選択トグル（単一選択／複数選択・再タップ解除）=====
   function toggleOption(opt){
     var group = opt.closest('.q');
+    var multi = group.getAttribute('data-multi') === '1';
     var was = opt.classList.contains('is-selected');
-    group.querySelectorAll('.opt').forEach(function(b){
-      b.classList.remove('is-selected'); b.setAttribute('aria-pressed','false');
-    });
-    if(!was){ opt.classList.add('is-selected'); opt.setAttribute('aria-pressed','true'); }
+    if(!multi){
+      // 単一選択：同じ設問内を一旦すべて解除
+      group.querySelectorAll('.opt').forEach(function(b){
+        b.classList.remove('is-selected'); b.setAttribute('aria-pressed','false');
+      });
+      if(!was){ opt.classList.add('is-selected'); opt.setAttribute('aria-pressed','true'); }
+    }else{
+      // 複数選択：タップした選択肢だけをトグル
+      opt.classList.toggle('is-selected', !was);
+      opt.setAttribute('aria-pressed', was ? 'false' : 'true');
+    }
     updateCounter();
   }
   function clearSelections(){
