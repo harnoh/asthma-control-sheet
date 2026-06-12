@@ -59,9 +59,9 @@
   }
 
   /* ===== Board ===== */
-  .board{flex:1 1 auto; display:flex; gap:14px; padding:16px; min-height:0;}
+  .board{flex:1 1 auto; display:flex; flex-direction:column; gap:14px; padding:16px;}
   .col{
-    flex:1; min-width:0; background:var(--card);
+    flex:0 0 auto; width:100%; min-height:calc(100vh - 90px); background:var(--card);
     border:1px solid var(--line); border-top:3px solid var(--navy);
     border-radius:13px; padding:14px 13px; display:flex; flex-direction:column;
     box-shadow:0 1px 2px rgba(27,42,74,.04);
@@ -73,7 +73,7 @@
   }
   .col-title{font-size:15px; font-weight:700; color:var(--navy); letter-spacing:.01em; flex:1; min-width:0;}
   .col.accent .col-title{color:var(--orange-press);}
-  .qs{flex:1 1 auto; display:flex; flex-direction:column; justify-content:flex-start; gap:14px; min-height:0;}
+  .qs{flex:1 1 auto; display:flex; flex-direction:column; justify-content:space-evenly; gap:14px; min-height:0;}
   .q-head{display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:5px;}
   .q .label{font-size:12.5px; font-weight:600; color:var(--muted); min-width:0;}
   .opts{display:flex; gap:5px;}
@@ -124,17 +124,16 @@
   }
   body.editing .opt{cursor:text;}
   body.editing{height:auto; min-height:100vh;}
+  body.editing .col{min-height:auto;}
+  body.editing .qs{justify-content:flex-start;}
 
   @media (prefers-reduced-motion: reduce){ .opt,.tbtn{transition:none;} }
 
   /* Narrow fallback (preview pane / portrait) */
-  @media (max-width: 1000px){
-    body{height:auto; min-height:100vh;}
-    .board{flex-wrap:wrap;}
-    .col{flex:1 1 45%;}
+  @media (max-width: 560px){
+    .col{min-height:0;}
     .qs{justify-content:flex-start;}
   }
-  @media (max-width: 560px){ .col{flex:1 1 100%;} }
 </style>
 </head>
 <body>
