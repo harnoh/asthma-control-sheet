@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>重症喘息 コントロール整理シート</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --navy-soft:#2C3E5E;
+    --orange:#F37021; --orange-press:#E0641A;
+    --bg:#EDF1F6; --card:#FFFFFF; --line:#D6DCE4;
+    --ink:#1B2A4A; --muted:#5B6675;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Meiryo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar{
+    flex:0 0 auto; background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:14px; padding:0 18px; height:58px;
+    position:sticky; top:0; z-index:5;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px; min-width:0; flex:1 1 auto; overflow:hidden;}
+  .brand .title{font-size:18px; font-weight:700; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .brand .sub{font-size:11.5px; color:#AEB9CC; white-space:nowrap; flex:0 0 auto;}
+  .controls{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+  .patient{
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.28);
+    color:#fff; border-radius:9px; padding:7px 11px; font-size:13px; width:176px; font-family:inherit;
+  }
+  .patient::placeholder{color:#AEB9CC;}
+  .patient:focus{outline:2px solid var(--orange); outline-offset:1px;}
+  .counter{
+    font-size:12.5px; color:#fff; background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:6px 12px;
+    white-space:nowrap; font-variant-numeric:tabular-nums;
+  }
+  .tbtn{
+    background:transparent; color:#fff; border:1px solid rgba(255,255,255,.45);
+    border-radius:9px; padding:7px 13px; font-size:13px; font-family:inherit;
+    cursor:pointer; white-space:nowrap; transition:background .12s ease;
+  }
+  .tbtn:hover{background:rgba(255,255,255,.12);}
+  .tbtn:active{background:rgba(255,255,255,.2);}
+  .edit.is-on{background:var(--orange); border-color:var(--orange);}
+  .edit.is-on:hover{background:var(--orange-press);}
+
+  /* ===== Edit hint ===== */
+  .edit-hint{
+    flex:0 0 auto; background:#FFF3EC; color:#9A4A18;
+    border-bottom:1px solid #F2C9AE; font-size:12.5px; padding:8px 18px; line-height:1.4;
+  }
+
+  /* ===== Board ===== */
+  .board{flex:1 1 auto; display:flex; gap:14px; padding:16px; min-height:0;}
+  .col{
+    flex:1; min-width:0; background:var(--card);
+    border:1px solid var(--line); border-top:3px solid var(--navy);
+    border-radius:13px; padding:14px 13px; display:flex; flex-direction:column;
+    box-shadow:0 1px 2px rgba(27,42,74,.04);
+  }
+  .col.accent{border-top-color:var(--orange);}
+  .col-head{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:6px;
+    padding-bottom:9px; margin-bottom:3px; border-bottom:1px solid var(--line);
+  }
+  .col-title{font-size:15px; font-weight:700; color:var(--navy); letter-spacing:.01em; flex:1; min-width:0;}
+  .col.accent .col-title{color:var(--orange-press);}
+  .qs{flex:1 1 auto; display:flex; flex-direction:column; justify-content:flex-start; gap:14px; min-height:0;}
+  .q-head{display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:5px;}
+  .q .label{font-size:12.5px; font-weight:600; color:var(--muted); min-width:0;}
+  .opts{display:flex; gap:5px;}
+  .opt{
+    flex:1; min-width:0; display:flex; align-items:center; justify-content:center; text-align:center;
+    min-height:40px; padding:5px 6px; border:1.5px solid var(--line); border-radius:8px;
+    background:#fff; color:var(--navy); font-family:inherit; font-size:12px; line-height:1.16;
+    font-variant-numeric:tabular-nums; cursor:pointer;
+    transition:background .12s ease, border-color .12s ease, color .12s ease;
+    -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  }
+  .opt:hover{background:#F3F6FA;}
+  .opt:focus-visible{outline:2px solid var(--orange); outline-offset:1px;}
+  .opt.is-selected{background:var(--orange); border-color:var(--orange); color:#fff; font-weight:600;}
+  .opt.is-selected:hover{background:var(--orange-press);}
+
+  /* ===== Editor chrome (hidden by default) ===== */
+  .editor-only{display:none;}
+  .q-tools{gap:3px; flex:0 0 auto;}
+  .q-tools button, .col-del{
+    width:24px; height:24px; padding:0; line-height:1; border:1px solid var(--line);
+    background:#fff; color:var(--muted); border-radius:6px; font-size:12px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; font-family:inherit;
+  }
+  .q-tools button:hover, .col-del:hover{background:#F3F6FA; color:var(--navy);}
+  .t-del:hover, .col-del:hover{color:#C0392B; border-color:#E2B6B0;}
+  .add-q{
+    margin-top:10px; width:100%; border:1.5px dashed var(--line); background:#fff; color:var(--muted);
+    border-radius:8px; padding:7px; font-size:12.5px; cursor:pointer; font-family:inherit;
+  }
+  .add-q:hover{background:#F3F6FA; color:var(--navy);}
+  .add-col{
+    flex:0 0 116px; align-self:stretch; border:2px dashed var(--line); background:transparent;
+    color:var(--muted); border-radius:13px; font-size:13px; cursor:pointer; font-family:inherit;
+  }
+  .add-col:hover{background:#fff; color:var(--navy);}
+
+  /* ===== Edit mode visibility ===== */
+  body.editing .q-tools{display:inline-flex;}
+  body.editing .col-del{display:inline-flex;}
+  body.editing .topbar .editor-only{display:inline-flex;}
+  body.editing .add-q{display:block;}
+  body.editing .add-col{display:flex; align-items:center; justify-content:center;}
+  body.editing .edit-hint{display:block;}
+  body.editing .normal-only{display:none;}
+  body.editing .label, body.editing .opt, body.editing .col-title{
+    outline:1px dashed #C9D2DE; outline-offset:1px; border-radius:4px;
+  }
+  body.editing .opt{cursor:text;}
+  body.editing{height:auto; min-height:100vh;}
+
+  @media (prefers-reduced-motion: reduce){ .opt,.tbtn{transition:none;} }
+
+  /* Narrow fallback (preview pane / portrait) */
+  @media (max-width: 1000px){
+    body{height:auto; min-height:100vh;}
+    .board{flex-wrap:wrap;}
+    .col{flex:1 1 45%;}
+    .qs{justify-content:flex-start;}
+  }
+  @media (max-width: 560px){ .col{flex:1 1 100%;} }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="title">重症喘息 コントロール整理シート</span>
+      <span class="sub">面談用・タップで選択</span>
+    </div>
+    <div class="controls">
+      <span class="counter normal-only" id="counter">記入 0 / 0</span>
+      <button class="tbtn reset normal-only" id="reset" type="button">リセット</button>
+      <button class="tbtn save editor-only" id="save" type="button">保存（書き出し）</button>
+      <button class="tbtn init editor-only" id="init" type="button">初期化</button>
+      <button class="tbtn edit" id="editToggle" type="button">編集</button>
+    </div>
+  </header>
+
+  <div class="edit-hint editor-only">
+    編集モード：<b>↑↓</b> で移動・<b>✕</b> で削除・<b>文字をタップ</b>で書き換え・<b>＋</b> で追加。仕上がったら〔保存（書き出し）〕でファイルにして共有できます。
+  </div>
+
+  <main class="board" id="board"><!-- rendered by script --></main>
+
+<script>
+(function(){
+  'use strict';
+  const KEY = 'asthmaSheet_v1';
+  const board = document.getElementById('board');
+  const counter = document.getElementById('counter');
+  const editToggle = document.getElementById('editToggle');
+  const saveBtn = document.getElementById('save');
+  const initBtn = document.getElementById('init');
+  const resetBtn = document.getElementById('reset');
+
+  // ===== §7 初期データ（seed） =====
+  const seed = [
+    { title:'喘息の重症度・コントロール', accent:false, qs:[
+      { label:'年齢', options:['69歳以下','70歳以上'] },
+      { label:'性別', options:['男性','女性'] },
+      { label:'過去1年の増悪回数', options:['0回','1回','2回','3回以上'] },
+      { label:'入院・救急受診', options:['なし','あり'] },
+      { label:'経口ステロイド（OCS）', options:['なし','短期バースト','維持使用'] },
+      { label:'血中好酸球数（/μL）', options:['<150','150–300','≥300','≥500'] },
+    ]},
+    { title:'治療・通院・くらしの負担', accent:true, qs:[
+      { label:'現在の治療', options:['中用量ICS','高用量+LABA','多剤でも不十分','バイオ製剤中'] },
+      { label:'生物学的製剤', options:['なし','ヌーカラ','ファセンラ','テゼスパイア','デュピクセント'] },
+      { label:'好酸球性副鼻腔炎・鼻茸', options:['なし','あり'] },
+      { label:'通院頻度（可能・希望）', options:['毎月可','2–3か月毎','半年毎希望','困難'] },
+      { label:'通院の距離・手段', options:['近い','やや遠い','遠方','要送迎・介助'] },
+      { label:'仕事', options:['会社員','自営業','パート・主婦','無職'] },
+      { label:'経済的な負担・不安', options:['なし','やや不安','強い','要・制度案内'] },
+    ]},
+  ];
+
+  // §7 注記：< を含む選択肢があるため HTML エスケープを通す
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function qHTML(label, options){
+    const opts = options.map(function(o){ return '<div class="opt" role="button" tabindex="0">'+esc(o)+'</div>'; }).join('');
+    return '<div class="q"><div class="q-head"><span class="label">'+esc(label)+'</span>'
+      + '<span class="q-tools editor-only"><button class="t-up" type="button" title="上へ">↑</button>'
+      + '<button class="t-down" type="button" title="下へ">↓</button>'
+      + '<button class="t-del" type="button" title="削除">✕</button></span></div>'
+      + '<div class="opts">'+opts+'</div></div>';
+  }
+  function colHTML(col){
+    const qs = col.qs.map(function(q){ return qHTML(q.label,q.options); }).join('');
+    return '<section class="col'+(col.accent?' accent':'')+'"><div class="col-head">'
+      + '<span class="col-title">'+esc(col.title)+'</span>'
+      + '<button class="col-del editor-only" type="button" title="列を削除">✕</button></div>'
+      + '<div class="qs">'+qs+'</div>'
+      + '<button class="add-q editor-only" type="button">＋ 項目を追加</button></section>';
+  }
+  const ADDCOL = '<button class="add-col editor-only" type="button">＋ 列を追加</button>';
+
+  function ensureAddCol(){ if(!board.querySelector('.add-col')) board.insertAdjacentHTML('beforeend', ADDCOL); }
+  function renderSeed(){ board.innerHTML = seed.map(colHTML).join('') + ADDCOL; }
+
+  // ===== §5 読み込みの優先順位 =====
+  // 1) localStorage 保存 → 2) 焼き込み済みHTML → 3) seed
+  function loadOrSeed(){
+    try{ var s = localStorage.getItem(KEY); if(s){ board.innerHTML = s; ensureAddCol(); return; } }catch(e){}
+    if(board.querySelector('.col')){ ensureAddCol(); return; }
+    renderSeed();
+  }
+
+  // ===== §3 カウンター（記入済み設問数 / 全設問数） =====
+  function updateCounter(){
+    var groups = board.querySelectorAll('.q'); var done = 0;
+    groups.forEach(function(g){ if(g.querySelector('.opt.is-selected')) done++; });
+    counter.textContent = '記入 ' + done + ' / ' + groups.length;
+  }
+
+  function applyEditable(){
+    var on = document.body.classList.contains('editing');
+    board.querySelectorAll('.label, .opt, .col-title').forEach(function(el){
+      if(on) el.setAttribute('contenteditable','true'); else el.removeAttribute('contenteditable');
+    });
+  }
+
+  // ===== §5 保存（構造のみ／患者の選択状態は保存しない） =====
+  function saveState(){
+    try{
+      var clone = board.cloneNode(true);
+      clone.querySelectorAll('.opt.is-selected').forEach(function(e){ e.classList.remove('is-selected'); });
+      clone.querySelectorAll('[contenteditable]').forEach(function(e){ e.removeAttribute('contenteditable'); });
+      localStorage.setItem(KEY, clone.innerHTML);
+    }catch(e){}
+  }
+  function afterChange(){ updateCounter(); saveState(); }
+
+  function moveQ(q, dir){
+    var qs = q.parentElement;
+    if(dir < 0 && q.previousElementSibling){ qs.insertBefore(q, q.previousElementSibling); }
+    else if(dir > 0 && q.nextElementSibling){ qs.insertBefore(q.nextElementSibling, q); }
+    afterChange();
+  }
+  function addQuestion(colEl){
+    colEl.querySelector('.qs').insertAdjacentHTML('beforeend', qHTML('新しい項目', ['選択1','選択2']));
+    applyEditable(); afterChange();
+  }
+  function addColumn(){
+    var addBtn = board.querySelector('.add-col');
+    var html = colHTML({ title:'新しい列', accent:false, qs:[{label:'新しい項目', options:['選択1','選択2']}] });
+    addBtn.insertAdjacentHTML('beforebegin', html);
+    applyEditable(); afterChange();
+  }
+
+  // ===== クリック処理（編集 / 選択トグル） =====
+  board.addEventListener('click', function(e){
+    var editing = document.body.classList.contains('editing');
+    var t = e.target;
+    if(t.closest('.t-up')){ moveQ(t.closest('.q'), -1); return; }
+    if(t.closest('.t-down')){ moveQ(t.closest('.q'), 1); return; }
+    if(t.closest('.t-del')){ t.closest('.q').remove(); afterChange(); return; }
+    if(t.closest('.add-q')){ addQuestion(t.closest('.col')); return; }
+    if(t.closest('.col-del')){ if(confirm('この列を削除しますか？（中の項目もすべて消えます）')){ t.closest('.col').remove(); afterChange(); } return; }
+    if(t.closest('.add-col')){ addColumn(); return; }
+    var opt = t.closest('.opt');
+    if(opt && !editing){
+      // §3 単一選択・再タップ解除
+      var group = opt.closest('.q');
+      var was = opt.classList.contains('is-selected');
+      group.querySelectorAll('.opt').forEach(function(b){ b.classList.remove('is-selected'); });
+      if(!was) opt.classList.add('is-selected');
+      updateCounter();
+    }
+  });
+
+  // §4 Enter で確定（改行を入れずフォーカスを外す）
+  board.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      var el = e.target;
+      if(el.classList && (el.classList.contains('label') || el.classList.contains('opt') || el.classList.contains('col-title'))){
+        e.preventDefault(); el.blur();
+      }
+    }
+  });
+  // §5 テキスト編集の確定時（blur）に保存
+  board.addEventListener('blur', function(e){
+    var el = e.target;
+    if(el.classList && (el.classList.contains('label') || el.classList.contains('opt') || el.classList.contains('col-title'))){
+      saveState();
+    }
+  }, true);
+
+  // ===== §4 編集モード切替 =====
+  function toggleEdit(){
+    var on = !document.body.classList.contains('editing');
+    document.body.classList.toggle('editing', on);
+    // §4 編集モードに入るとき患者の選択状態はクリア
+    if(on){ board.querySelectorAll('.opt.is-selected').forEach(function(b){ b.classList.remove('is-selected'); }); updateCounter(); }
+    applyEditable();
+    editToggle.textContent = on ? '編集を終了' : '編集';
+    editToggle.classList.toggle('is-on', on);
+    if(!on) saveState(); // §5 編集モード終了時に保存
+  }
+  editToggle.addEventListener('click', toggleEdit);
+
+  // §3 リセット：全選択解除
+  resetBtn.addEventListener('click', function(){
+    board.querySelectorAll('.opt.is-selected').forEach(function(b){ b.classList.remove('is-selected'); });
+    updateCounter();
+  });
+
+  // §4 初期化：確認のうえ seed に戻す
+  initBtn.addEventListener('click', function(){
+    if(!confirm('最初の項目に戻しますか？（この端末での編集内容は消えます）')) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    renderSeed(); applyEditable(); updateCounter();
+  });
+
+  // ===== §6 書き出し（共有用HTML） =====
+  function exportHTML(){
+    var doc = document.documentElement.cloneNode(true);
+    // 編集状態・contenteditable・選択状態・患者入力を除去
+    var b = doc.querySelector('body'); if(b) b.classList.remove('editing');
+    doc.querySelectorAll('[contenteditable]').forEach(function(e){ e.removeAttribute('contenteditable'); });
+    doc.querySelectorAll('.opt.is-selected').forEach(function(e){ e.classList.remove('is-selected'); });
+    var html = '<!doctype html>\n<html lang="ja">' + doc.innerHTML + '</html>';
+    try{
+      var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = '重症喘息シート_共有用.html';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+    }catch(err){
+      // §6-5 ダウンロード不可環境ではアラート案内
+      alert('この画面では書き出しできません。ファイルをダウンロードし、ブラウザ（Safari / Chrome）で開いてからお試しください。');
+    }
+  }
+  saveBtn.addEventListener('click', exportHTML);
+
+  // ===== 起動 =====
+  loadOrSeed();
+  applyEditable();
+  updateCounter();
+})();
+</script>
+</body>
+</html>
