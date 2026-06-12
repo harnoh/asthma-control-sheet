@@ -434,7 +434,7 @@
       var blob = new Blob([html], {type:'text/html;charset=utf-8'});
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
-      a.href = url; a.download = '重症喘息シート_共有用.html';
+      a.href = url; a.download = '患者様についてのお伺い_共有用.html';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
     }catch(err){
